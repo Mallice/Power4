@@ -85,7 +85,7 @@ void play(Game *g, int column, char token) {
 bool won(Game *game, Player player, int playedI, int playedJ) {
     int alignedToken = 0;
     // Horizontal Check
-    for(int j = max(playedJ - 4, 0); j < min(playedJ +4, 7) ; j++) {
+    for(int j = max(playedJ - 4, 0); j < min(playedJ +4, 6) ; j++) {
         if(game->board[playedI][j] == player.token) {
             alignedToken++;
         } else alignedToken = 0;
@@ -94,7 +94,7 @@ bool won(Game *game, Player player, int playedI, int playedJ) {
 
     alignedToken = 0;
     // Vertical Check
-    for(int i = max(playedI - 4, 0); i < min(playedI +4, 7) ; i++) {
+    for(int i = max(playedI - 4, 0); i < min(playedI +4, 6) ; i++) {
         if(game->board[i][playedJ] == player.token) {
             alignedToken++;
         } else alignedToken = 0;
@@ -102,49 +102,104 @@ bool won(Game *game, Player player, int playedI, int playedJ) {
     }
 
     // Diagonal / Check
-    alignedToken =0;
+    // />  Decrease i, Increase j 
+    alignedToken = 0;
+    int jLoc[7] = {-3,-2,-1,0,1,2,3};
+    int iLoc[7] = {3,2,1,0,-1,-2,3};
+    for(int count = 0 ; count < 7 ; count++) {
+        int i = playedI + iLoc[count];
+        int j = playedJ + jLoc[count];
+
+        // when computed location outside of game board we skip check
+        if(i < 0 || i > 6 || j < 0 ||j > 6) continue;
+
+        if(game->board[i][j] == player.token) {
+            alignedToken++;
+        } else alignedToken = 0;
+        if(alignedToken >= 4) return true;
+    }
 
     // Diagonal \ Check
+    // \>  Increase i, Increase j
+    alignedToken = 0;
+    int jLoc2[7] = {-3,-2,-1,0,1,2,3};
+    int iLoc2[7] = {-3,-2,-1,0,1,2,3};
+    for(int count = 0 ; count < 7 ; count++) {
+        int i = playedI + iLoc2[count];
+        int j = playedJ + jLoc2[count];
+        
+        // when computed location outside of game board we skip check
+        if(i < 0 || i > 6 || j < 0 ||j > 6) continue;
+        if(game->board[i][j] == player.token) {
+            alignedToken++;
+        } else alignedToken = 0;
+        if(alignedToken >= 4) return true;
+    }
     return false;
 }
 
+// [0:0][0:1][0:2][0:3][0:4][0:5][0:6]
+// [1:0][1:1][1:2][1:3][1:4][1:5][1:6]
+// [2:0][2:1][2:2][2:3][2:4][2:5][2:6]
+// [3:0][3:1][3:2][3:3][3:4][3:5][3:6]
+// [4:0][4:1][4:2][4:3][4:4][4:5][4:6]
+// [5:0][5:1][5:2][5:3][5:4][5:5][5:6]
+// [6:0][6:1][6:2][6:3][6:4][6:5][6:6]
 
 int main()
 {
     Game *g = newGame("P1", "P2");
     printf("[%s: %c] [%s: %c]\n", g->players[0].name, g->players[0].token, g->players[1].name, g->players[1].token);
+
+    g->board[6][0] = 'X';
+    g->board[5][1] = 'X';
+    g->board[4][2] = 'X';
+    g->board[3][3] = 'X';
     printBoard(g);
+    if(won(g, g->players[1], 4, 2)) {
+        printf("[%s] Winner !\n", g->players[1].name);
+    }
+
+    g->board[3][3] = ' ';
+
+    g->board[0][2] = 'O';
+    g->board[1][3] = 'O';
+    g->board[2][4] = 'O';
+    g->board[3][5] = 'O';
+    printBoard(g);
+    if(won(g, g->players[0], 2, 4)) {
+        printf("[%s] Winner !\n", g->players[0].name);
+    }
+    // Slots s = slots(g);
+    // printf("%d, %d \n", slot(s, 4), s.length);
+
+    // g->board[0][4] = 'X';
+
+    // s = slots(g);
+    // printf("%d, %d \n", slot(s, 4), s.length);
+
+    // printBoard(g);
+
+    // play(g, 0, 'X');
+    // play(g, 0, 'X');
+    //     if(won(g, g->players[1], 5, 0)) {
+    //     printf("Winner !\n");
+    // }
+
+    // play(g, 0, 'X');
+    // play(g, 0, 'X');
     
-    Slots s = slots(g);
-    printf("%d, %d \n", slot(s, 4), s.length);
+    // printf("\n");
+    // printBoard(g);
+    //     if(won(g, g->players[1], 5, 0)) {
+    //     printf("Winner !\n");
+    // }
 
-    g->board[0][4] = 'X';
-
-    s = slots(g);
-    printf("%d, %d \n", slot(s, 4), s.length);
-
-    printBoard(g);
-
-    play(g, 0, 'X');
-    play(g, 0, 'X');
-        if(won(g, g->players[1], 5, 0)) {
-        printf("Winner !\n");
-    }
-
-    play(g, 0, 'X');
-    play(g, 0, 'X');
-    
-    printf("\n");
-    printBoard(g);
-        if(won(g, g->players[1], 5, 0)) {
-        printf("Winner !\n");
-    }
-
-    play(g, 0, 'X');
-    printf("\n");
-    printBoard(g);
-    if(won(g, g->players[1], 5, 0)) {
-        printf("Winner !\n");
-    }
+    // play(g, 0, 'X');
+    // printf("\n");
+    // printBoard(g);
+    // if(won(g, g->players[1], 5, 0)) {
+    //     printf("Winner !\n");
+    // }
     return 0;
 }
